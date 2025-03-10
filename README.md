@@ -1,1 +1,0 @@
-# hospital-management-suite-frontend
