@@ -7,8 +7,8 @@ import { AuthProvider } from "./context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Hospital Management System",
-  description: "A comprehensive hospital management system",
+  title: "MediHub",
+  description: "Your Complete Healthcare Management Solution",
 };
 
 export default function RootLayout({

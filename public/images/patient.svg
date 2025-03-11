@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <circle cx="256" cy="128" r="96" fill="#0D9488"/>
+  <!-- Body -->
+  <path d="M256 256L256 480M160 320L352 320" stroke="#0D9488" stroke-width="48" stroke-linecap="round"/>
+  <!-- Heart -->
+  <path d="M256 384C256 384 352 320 352 272C352 240 328 224 304 224C280 224 256 248 256 248C256 248 232 224 208 224C184 224 160 240 160 272C160 320 256 384 256 384Z" fill="#EF4444"/>
+</svg> 
