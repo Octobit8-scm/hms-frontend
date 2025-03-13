@@ -1,15 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'www.transparentpng.com',
-        port: '',
-        pathname: '/thumb/**',
-      },
-    ],
+    unoptimized: true,
+    remotePatterns: [],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  output: 'standalone',
 }
 
 module.exports = nextConfig 
