@@ -1,34 +1,15 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Get various metrics from the database
-    const [
-      totalPatients,
-      totalDoctors,
-      totalAppointments,
-      activeAppointments,
-      totalDepartments,
-      totalBeds,
-      occupiedBeds,
-    ] = await Promise.all([
-      prisma.patient.count(),
-      prisma.doctor.count(),
-      prisma.appointment.count(),
-      prisma.appointment.count({
-        where: {
-          status: 'ACTIVE',
-        },
-      }),
-      prisma.department.count(),
-      prisma.bed.count(),
-      prisma.bed.count({
-        where: {
-          status: 'OCCUPIED',
-        },
-      }),
-    ]);
+    // Mock metrics data
+    const totalPatients = 150;
+    const totalDoctors = 25;
+    const totalAppointments = 300;
+    const activeAppointments = 50;
+    const totalDepartments = 10;
+    const totalBeds = 200;
+    const occupiedBeds = 120;
 
     // Format metrics in Prometheus format
     const metrics = `
@@ -52,26 +33,22 @@ hospital_active_appointments ${activeAppointments}
 # TYPE hospital_total_departments gauge
 hospital_total_departments ${totalDepartments}
 
-# HELP hospital_total_beds Total number of hospital beds
+# HELP hospital_total_beds Total number of beds
 # TYPE hospital_total_beds gauge
 hospital_total_beds ${totalBeds}
 
 # HELP hospital_occupied_beds Number of occupied beds
 # TYPE hospital_occupied_beds gauge
 hospital_occupied_beds ${occupiedBeds}
-
-# HELP hospital_bed_occupancy_rate Bed occupancy rate
-# TYPE hospital_bed_occupancy_rate gauge
-hospital_bed_occupancy_rate ${totalBeds > 0 ? (occupiedBeds / totalBeds) * 100 : 0}
 `;
 
     return new NextResponse(metrics, {
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   } catch (error) {
-    console.error('Error collecting metrics:', error);
-    return new NextResponse('Error collecting metrics', { status: 500 });
+    console.error('Error fetching metrics:', error);
+    return new NextResponse('Error fetching metrics', { status: 500 });
   }
 } 

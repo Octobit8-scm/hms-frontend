@@ -1,6 +1,6 @@
 import { UserRole } from '../context/AuthContext';
 
-type IconName = 'patient' | 'room' | 'admission';
+type IconName = 'patient' | 'room' | 'admission' | 'users' | 'calendar' | 'clipboard' | 'user' | 'medicine' | 'alert' | 'truck' | 'prescription' | 'bill' | 'inventory' | 'supplier' | 'appointment' | 'stethoscope' | 'chart' | 'treatment';
 
 interface NavigationItem {
   name: string;
@@ -29,29 +29,29 @@ export const roleConfig: Record<string, RoleConfig> = {
       { name: 'Rooms', href: '/admin/rooms', icon: 'room' },
       { name: 'Patients', href: '/admin/patients', icon: 'patient' },
       { name: 'Admissions', href: '/admin/admissions', icon: 'admission' },
-      { name: 'Staff', href: '/admin/staff', icon: 'patient' }
+      { name: 'Staff', href: '/admin/staff', icon: 'users' }
     ]
   },
   doctor: {
     routes: ['/dashboard', '/dashboard/patients'],
     navigation: [
-      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-      { name: 'My Patients', href: '/dashboard/patients', icon: 'UserGroupIcon' },
+      { name: 'Dashboard', href: '/dashboard', icon: 'room' },
+      { name: 'My Patients', href: '/dashboard/patients', icon: 'patient' },
     ]
   },
   nurse: {
     routes: ['/dashboard', '/dashboard/patients', '/dashboard/doctors'],
     navigation: [
-      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-      { name: 'Patients', href: '/dashboard/patients', icon: 'UserGroupIcon' },
-      { name: 'Doctors', href: '/dashboard/doctors', icon: 'UserIcon' },
+      { name: 'Dashboard', href: '/dashboard', icon: 'room' },
+      { name: 'Patients', href: '/dashboard/patients', icon: 'patient' },
+      { name: 'Doctors', href: '/dashboard/doctors', icon: 'stethoscope' },
     ]
   },
   pharmacist: {
     routes: ['/dashboard', '/dashboard/pharmacy'],
     navigation: [
-      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-      { name: 'Pharmacy', href: '/dashboard/pharmacy', icon: 'BeakerIcon' },
+      { name: 'Dashboard', href: '/dashboard', icon: 'room' },
+      { name: 'Pharmacy', href: '/dashboard/pharmacy', icon: 'medicine' },
     ]
   },
   receptionist: {
@@ -71,8 +71,8 @@ export const roleConfig: Record<string, RoleConfig> = {
   patient: {
     routes: ['/dashboard', '/dashboard/appointments'],
     navigation: [
-      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-      { name: 'My Appointments', href: '/dashboard/appointments', icon: 'CalendarIcon' },
+      { name: 'Dashboard', href: '/dashboard', icon: 'room' },
+      { name: 'My Appointments', href: '/dashboard/appointments', icon: 'appointment' },
     ]
   }
 } as const; 
