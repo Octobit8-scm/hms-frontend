@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
+import toast from 'react-hot-toast';
 
 interface PharmacistRegistrationFormProps {
   onSuccess: () => void;
@@ -28,10 +29,12 @@ export default function PharmacistRegistrationForm({ onSuccess, onCancel }: Phar
     try {
       const success = await register(formData.email, formData.password, formData.name, 'pharmacist');
       if (success) {
+        toast.success('Registration successful');
         onSuccess();
       }
     } catch (error) {
       console.error('Registration error:', error);
+      toast.error('Registration failed');
     } finally {
       setIsLoading(false);
     }

@@ -1,122 +1,138 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PatientRegistrationForm from '../app/components/PatientRegistrationForm';
+import PatientRegistrationForm from '@/app/components/PatientRegistrationForm';
 import toast from 'react-hot-toast';
+import { TestWrapper } from './test-utils';
 
-// Mock the dependencies
-jest.mock('react-hot-toast', () => ({
-  __esModule: true,
-  default: {
-    success: jest.fn(),
-    error: jest.fn()
-  }
-}));
-
+// Mock the next/navigation module
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn()
-  })
+    push: jest.fn(),
+  }),
+}));
+
+// Mock react-hot-toast
+jest.mock('react-hot-toast', () => ({
+  success: jest.fn(),
+  error: jest.fn(),
+}));
+
+// Mock AuthContext
+jest.mock('@/app/context/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    register: jest.fn().mockResolvedValue(true),
+    login: jest.fn(),
+    logout: jest.fn(),
+    isLoading: false,
+  }),
 }));
 
 describe('PatientRegistrationForm', () => {
+  const mockOnSuccess = jest.fn();
   const mockOnCancel = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  const renderForm = () => {
+    return render(
+      <TestWrapper>
+        <PatientRegistrationForm onSuccess={mockOnSuccess} onCancel={mockOnCancel} />
+      </TestWrapper>
+    );
+  };
+
   it('renders all form fields', () => {
-    render(<PatientRegistrationForm onCancel={mockOnCancel} />);
+    renderForm();
 
-    // Check for section headings
-    expect(screen.getByText('Account Information')).toBeInTheDocument();
-    expect(screen.getByText('Personal Information')).toBeInTheDocument();
-    expect(screen.getByText('Contact Information')).toBeInTheDocument();
-    expect(screen.getByText('Emergency Contact')).toBeInTheDocument();
-    expect(screen.getByText('Medical Information')).toBeInTheDocument();
-
-    // Check for required input fields
-    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Full Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /first name/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /last name/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/date of birth/i)).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /gender/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /phone number/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /blood group/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Date of Birth')).toBeInTheDocument();
+    expect(screen.getByLabelText('Gender')).toBeInTheDocument();
+    expect(screen.getByLabelText('Phone Number')).toBeInTheDocument();
+    expect(screen.getByLabelText('Address')).toBeInTheDocument();
   });
 
   it('handles form submission with valid data', async () => {
-    render(<PatientRegistrationForm onCancel={mockOnCancel} />);
-    
-    // Fill in the form
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com');
-    await userEvent.type(screen.getByLabelText('Password'), 'password123');
-    await userEvent.type(screen.getByLabelText('Confirm Password'), 'password123');
-    await userEvent.type(screen.getByRole('textbox', { name: /first name/i }), 'John');
-    await userEvent.type(screen.getByRole('textbox', { name: /last name/i }), 'Doe');
-    await userEvent.type(screen.getByLabelText(/date of birth/i), '1990-01-01');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /gender/i }), 'male');
-    await userEvent.type(screen.getByRole('textbox', { name: /phone number/i }), '1234567890');
-    await userEvent.type(screen.getByRole('textbox', { name: /address/i }), '123 Main St');
-    await userEvent.type(screen.getByRole('textbox', { name: /city/i }), 'Anytown');
-    await userEvent.type(screen.getByRole('textbox', { name: /state/i }), 'State');
-    await userEvent.type(screen.getByRole('textbox', { name: /zip code/i }), '12345');
-    await userEvent.type(screen.getByRole('textbox', { name: /emergency contact name/i }), 'Jane Doe');
-    await userEvent.type(screen.getByRole('textbox', { name: /emergency contact phone/i }), '0987654321');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /blood group/i }), 'O+');
+    renderForm();
 
-    // Submit the form
-    const submitButton = screen.getByRole('button', { name: /register/i });
-    await userEvent.click(submitButton);
+    // Fill in form data
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'John Doe' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('Date of Birth'), { target: { value: '1990-01-01' } });
+    fireEvent.change(screen.getByLabelText('Gender'), { target: { value: 'male' } });
+    fireEvent.change(screen.getByLabelText('Phone Number'), { target: { value: '1234567890' } });
+    fireEvent.change(screen.getByLabelText('Address'), { target: { value: '123 Main St' } });
 
-    // Check if success toast was shown
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith('Registration successful! Please login.');
-    });
-
-    // Check if onCancel was called (to return to login)
-    expect(mockOnCancel).toHaveBeenCalled();
-  });
-
-  it('shows error when passwords do not match', async () => {
-    render(<PatientRegistrationForm onCancel={mockOnCancel} />);
-    
-    await userEvent.type(screen.getByLabelText('Password'), 'password123');
-    await userEvent.type(screen.getByLabelText('Confirm Password'), 'differentpassword');
-
-    const submitButton = screen.getByRole('button', { name: /register/i });
-    await userEvent.click(submitButton);
-
-    // Fill in required fields to allow form submission
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'test@example.com');
-    await userEvent.type(screen.getByRole('textbox', { name: /first name/i }), 'John');
-    await userEvent.type(screen.getByRole('textbox', { name: /last name/i }), 'Doe');
-    await userEvent.type(screen.getByLabelText(/date of birth/i), '1990-01-01');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /gender/i }), 'male');
-    await userEvent.type(screen.getByRole('textbox', { name: /phone number/i }), '1234567890');
-    await userEvent.type(screen.getByRole('textbox', { name: /address/i }), '123 Main St');
-    await userEvent.type(screen.getByRole('textbox', { name: /city/i }), 'Anytown');
-    await userEvent.type(screen.getByRole('textbox', { name: /state/i }), 'State');
-    await userEvent.type(screen.getByRole('textbox', { name: /zip code/i }), '12345');
-    await userEvent.type(screen.getByRole('textbox', { name: /emergency contact name/i }), 'Jane Doe');
-    await userEvent.type(screen.getByRole('textbox', { name: /emergency contact phone/i }), '0987654321');
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: /blood group/i }), 'O+');
-
-    await userEvent.click(submitButton);
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Passwords do not match');
+      expect(mockOnSuccess).toHaveBeenCalled();
     });
   });
 
-  it('calls onCancel when cancel button is clicked', async () => {
-    render(<PatientRegistrationForm onCancel={mockOnCancel} />);
+  it('calls onCancel when cancel button is clicked', () => {
+    renderForm();
     
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
-    await userEvent.click(cancelButton);
-
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    
     expect(mockOnCancel).toHaveBeenCalled();
+  });
+
+  it('validates required fields', async () => {
+    renderForm();
+
+    // Try to submit without filling required fields
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    // Check that form validation prevents submission
+    expect(mockOnSuccess).not.toHaveBeenCalled();
+
+    // Wait for validation messages
+    await waitFor(() => {
+      expect(screen.getByLabelText('Full Name')).toBeRequired();
+      expect(screen.getByLabelText('Email')).toBeRequired();
+      expect(screen.getByLabelText('Password')).toBeRequired();
+      expect(screen.getByLabelText('Date of Birth')).toBeRequired();
+      expect(screen.getByLabelText('Gender')).toBeRequired();
+      expect(screen.getByLabelText('Phone Number')).toBeRequired();
+      expect(screen.getByLabelText('Address')).toBeRequired();
+    });
+  });
+
+  it('shows loading state during registration', async () => {
+    // Mock the auth context with a never-resolving register function
+    jest.mock('@/app/context/AuthContext', () => ({
+      useAuth: () => ({
+        user: null,
+        register: () => new Promise(() => {}), // Never resolves
+        login: jest.fn(),
+        logout: jest.fn(),
+        isLoading: true,
+      }),
+    }));
+
+    renderForm();
+
+    // Fill in form data
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'John Doe' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'john@example.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('Date of Birth'), { target: { value: '1990-01-01' } });
+    fireEvent.change(screen.getByLabelText('Gender'), { target: { value: 'male' } });
+    fireEvent.change(screen.getByLabelText('Phone Number'), { target: { value: '1234567890' } });
+    fireEvent.change(screen.getByLabelText('Address'), { target: { value: '123 Main St' } });
+
+    // Submit form
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /registering/i })).toBeInTheDocument();
+    });
   });
 }); 
